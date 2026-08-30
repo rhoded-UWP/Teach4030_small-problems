@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scenario Cards: Choosing the Least Intrusive Intervention</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16283f;
+    --ink-soft:#41586f;
+    --paper:#f6f4ee;
+    --card:#fffdf8;
+    --rule:#cbd9e6;
+    --pencil:#e0a92e;
+    --sage:#5f8268;
+    --brick:#a24b3c;
+    --shadow:rgba(22,40,63,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:linear-gradient(var(--rule) 1px,transparent 1px);
+    background-size:100% 30px;
+    color:var(--ink);
+    font-family:"Newsreader",Georgia,serif;
+    font-size:17px;
+    line-height:1.55;
+    padding:34px 20px 80px;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+
+  /* masthead */
+  header{border-bottom:3px solid var(--ink);padding-bottom:14px;margin-bottom:26px}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-soft);margin:0 0 6px;
+  }
+  h1{
+    font-family:"Bricolage Grotesque",system-ui,sans-serif;
+    font-weight:800;font-size:clamp(28px,5.2vw,46px);line-height:1.02;
+    margin:0;letter-spacing:-.02em;
+  }
+  h1 em{font-style:normal;color:var(--brick)}
+  .standfirst{margin:12px 0 0;max-width:60ch;color:var(--ink-soft);font-size:16px}
+
+  /* ladder legend */
+  .legend{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:22px 0 30px;
+  }
+  .legend div{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;line-height:1.3;
+    padding:9px 8px;border-top:4px solid var(--rung);color:var(--ink-soft);
+    background:var(--card);
+  }
+  .legend b{display:block;color:var(--ink);font-weight:600;font-size:11px;margin-bottom:3px}
+  .l1{--rung:#9ec4a8}.l2{--rung:#5f8268}.l3{--rung:#e0a92e}.l4{--rung:#cf8340}.l5{--rung:#a24b3c}
+
+  /* card */
+  .card{
+    background:var(--card);border:1px solid var(--rule);
+    box-shadow:0 1px 0 var(--rule),0 14px 34px -22px var(--shadow);
+    padding:26px 26px 8px;position:relative;
+  }
+  .card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--pencil);
+  }
+  .cardhead{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage)}
+  .count{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-soft)}
+  h2{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:24px;margin:6px 0 12px;letter-spacing:-.01em}
+  .vignette{margin:0 0 20px;font-size:18px;max-width:64ch}
+  .prompt{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 10px}
+
+  /* options */
+  .opt{
+    display:block;width:100%;text-align:left;background:transparent;cursor:pointer;
+    border:1px solid var(--rule);border-left:5px solid var(--rule);
+    padding:13px 15px;margin-bottom:9px;font:inherit;color:inherit;
+    transition:border-color .14s ease,background .14s ease,transform .14s ease;
+  }
+  .opt:hover:not(:disabled){background:#f2f6f2;border-left-color:var(--sage);transform:translateX(2px)}
+  .opt:focus-visible{outline:3px solid var(--pencil);outline-offset:2px}
+  .opt:disabled{cursor:default}
+  .opt .letter{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:12px;color:var(--ink-soft);margin-right:9px}
+  .opt.revealed{border-left-color:var(--rung);background:#fff}
+  .opt.picked{box-shadow:inset 0 0 0 2px var(--ink)}
+
+  .rungline{
+    display:flex;align-items:center;gap:9px;margin-top:11px;padding-top:10px;border-top:1px dotted var(--rule);
+  }
+  .pips{display:flex;gap:3px}
+  .pip{width:16px;height:7px;background:var(--rule)}
+  .pip.on{background:var(--rung)}
+  .rungname{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--rung);font-weight:600}
+  .verdict{margin:9px 0 0;font-size:15.5px;color:var(--ink-soft)}
+  .verdict strong{color:var(--ink);font-weight:500}
+
+  .note{
+    margin:18px 0 0;padding:14px 16px;background:#eef3ee;border-left:5px solid var(--sage);
+    font-size:15.5px;
+  }
+  .note b{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);display:block;margin-bottom:5px}
+
+  /* nav */
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid var(--rule)}
+  .navbtn{
+    font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:14px;
+    background:var(--ink);color:var(--paper);border:none;padding:11px 20px;cursor:pointer;
+  }
+  .navbtn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .navbtn:disabled{opacity:.3;cursor:default}
+  .navbtn:focus-visible{outline:3px solid var(--pencil);outline-offset:2px}
+  .dots{display:flex;gap:5px;flex-wrap:wrap}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--rule);border:none;padding:0;cursor:pointer}
+  .dot.done{background:var(--sage)}
+  .dot.here{background:var(--ink);transform:scale(1.35)}
+  .dot:focus-visible{outline:2px solid var(--pencil);outline-offset:3px}
+
+  footer{margin-top:34px;font-size:14.5px;color:var(--ink-soft);max-width:66ch}
+  footer h3{font-family:"Bricolage Grotesque",sans-serif;font-size:15px;margin:0 0 6px;color:var(--ink)}
+
+  @media (max-width:620px){
+    .legend{grid-template-columns:repeat(2,1fr)}
+    .card{padding:20px 18px 6px}
+    body{padding:22px 12px 60px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">TCHG 4030 / Lab practice deck</p>
+  <h1>Take the <em>smallest</em> step that works.</h1>
+  <p class="standfirst">Twelve ordinary classroom moments. For each one, pick the response you would actually try first, then compare it against where that move sits on the intrusion ladder and what it teaches the student about getting your attention.</p>
+</header>
+
+<div class="legend">
+  <div class="l1"><b>1. Nonverbal</b>Signal, look, planned ignoring, reinforce a peer</div>
+  <div class="l2"><b>2. Proximity</b>Move near, touch the desk, keep teaching</div>
+  <div class="l3"><b>3. Private verbal</b>Quiet redirect, restate the expectation to one student</div>
+  <div class="l4"><b>4. Public direction</b>Named correction, stated choice, brief conference</div>
+  <div class="l5"><b>5. Removal</b>Loss of access, seat change, office, call home</div>
+</div>
+
+<main class="card" id="card" aria-live="polite">
+  <div class="cardhead">
+    <span class="tag" id="tag"></span>
+    <span class="count" id="count"></span>
+  </div>
+  <h2 id="title"></h2>
+  <p class="vignette" id="vignette"></p>
+  <p class="prompt">What do you do first?</p>
+  <div id="options"></div>
+  <div id="note"></div>
+
+  <div class="nav">
+    <button class="navbtn ghost" id="prev">Previous</button>
+    <div class="dots" id="dots"></div>
+    <button class="navbtn" id="next">Next card</button>
+  </div>
+</main>
+
+<footer>
+  <h3>How to use this in a role play</h3>
+  <p>Partner A plays the teacher and responds in real time before opening the card's feedback. Partner B plays the student and decides in advance whether the behavior is about attention, escape, or a missing skill, without telling A. After the exchange, both look at the ladder together and ask one question: did the response cost more attention, time, or dignity than the behavior required?</p>
+</footer>
+
+</div>
+
+<script>
+const RUNGS = [
+  null,
+  {name:"Nonverbal", color:"#9ec4a8"},
+  {name:"Proximity", color:"#5f8268"},
+  {name:"Private verbal", color:"#e0a92e"},
+  {name:"Public direction", color:"#cf8340"},
+  {name:"Removal", color:"#a24b3c"}
+];
+
+const CARDS = [
+{
+ tag:"Whole-group instruction", title:"The blurter",
+ vignette:"You are running a fast question-and-answer review. Marcus knows the material and calls out four correct answers in a row before anyone else can raise a hand. Two students have stopped trying.",
+ opts:[
+  {t:"Keep going, and immediately narrate the hand raising you want: \"Thank you for waiting, Priya. Priya, what do you think?\"", lvl:1, v:"<strong>Strong first move.</strong> It reinforces the replacement behavior in front of everyone without naming Marcus. Blurting is usually attention seeking, so the cheapest fix is to route attention to the behavior you want instead."},
+  {t:"Say \"Marcus, hands\" and continue the review.", lvl:4, v:"<strong>Works, but costs more than it needs to.</strong> He hears his name plus a correction in front of peers, and he still got the attention that the blurting was after. Hold this in reserve if option A does not land after a few rounds."},
+  {t:"Pause the review and remind the whole class of the hand raising rule.", lvl:4, v:"<strong>Stops instruction for one student's behavior.</strong> Whole-class reminders for an individual problem cost every student time and often read as a scolding. Reserve group reteaching for when several students are doing it."}
+ ],
+ note:"A student who knows the answers and cannot wait is often under-challenged, not defiant. If the pattern holds all week, the intervention may belong in your planning rather than your management."
+},
+{
+ tag:"Whole-group instruction", title:"Four chair legs",
+ vignette:"During your mini-lesson, Ava rocks back on two chair legs. She is watching you and tracking the lesson. It is the third time this week.",
+ opts:[
+  {t:"Catch her eye and tap two fingers down on your own desk, the signal your class already knows for four on the floor.", lvl:1, v:"<strong>Least intrusive and preserves the lesson.</strong> A pre-taught nonverbal signal corrects without any student losing instructional time or face. This only works if the signal was taught in advance, which is the real preparation step."},
+  {t:"Walk over and stand beside her chair while you keep talking.", lvl:2, v:"<strong>Also good.</strong> Proximity almost always resolves it, and it costs nothing. Slightly more intrusive than a signal because the class notices you moved, but it is a normal thing to do while teaching."},
+  {t:"Stop and say, \"Ava, all four legs on the floor please.\"", lvl:4, v:"<strong>Effective but expensive for a safety habit this minor.</strong> Save the named public correction for when the nonverbal and proximity options have already failed today, not just for speed."}
+ ],
+ note:"Third time this week is a pattern worth noting. If the signal keeps working but the behavior keeps returning, the goal shifts from correcting the moment to teaching the habit."
+},
+{
+ tag:"Whole-group instruction", title:"The side conversation",
+ vignette:"Ten minutes into a read-aloud, two students on the carpet start a whispered conversation about recess. The students around them are still listening.",
+ opts:[
+  {t:"Keep reading and move so you are standing right beside them.", lvl:2, v:"<strong>The reliable default.</strong> The read-aloud never stops, the whisperers self-correct, and no one else's attention is broken. Proximity does most of the work in a carpet setting."},
+  {t:"Stop reading mid sentence and wait, silently, looking at the group.", lvl:4, v:"<strong>Powerful and overused.</strong> The silent pause corrects, but it also spends the whole class's attention on two students and can build a tense dynamic if it becomes your habit. Effective once in a while, corrosive as a default."},
+  {t:"Separate them: \"Devon, come sit here by me.\"", lvl:5, v:"<strong>Too far for a first whisper.</strong> Moving a student is a real consequence and should follow a redirect that did not work, not precede one. Keep it available for the second or third occurrence."}
+ ],
+ note:"Notice how long they had been sitting. Ten minutes on a carpet is near the limit for many young students, and a movement break may prevent more of these than any correction will."
+},
+{
+ tag:"Independent work", title:"The pencil sharpener circuit",
+ vignette:"Elijah has visited the pencil sharpener three times in ten minutes during independent math. His paper has his name on it and nothing else.",
+ opts:[
+  {t:"Meet him at his desk on his way back, crouch down, and say quietly, \"Show me the first one. Let's do it together.\"", lvl:3, v:"<strong>Best fit, because it treats the likely cause.</strong> Repeated wandering with a blank paper is usually escape from a task that feels too hard. A private redirect that includes help removes the reason to leave."},
+  {t:"Say nothing and stand near his desk when he returns.", lvl:2, v:"<strong>Lower on the ladder, but it may not solve it.</strong> Proximity gets him seated. It does not get him started, and he will likely find another reason to move. Least intrusive is the goal only among options that actually work."},
+  {t:"Tell him he has used his sharpener trips for the period and needs to stay seated.", lvl:4, v:"<strong>Addresses the movement, not the avoidance.</strong> He now sits at a blank page with no way out, which often produces a bigger behavior. Use a limit like this only alongside support on the work itself."}
+ ],
+ note:"This card is the one where the least intrusive option is not the best option. Intrusiveness is a tiebreaker among responses that address the function, not a reason to pick a response that ignores it."
+},
+{
+ tag:"Independent work", title:"Head down",
+ vignette:"You hand out a writing prompt. Nadia puts her head on her desk and says, to no one in particular, \"This is stupid.\" She has not picked up her pencil.",
+ opts:[
+  {t:"Give it sixty seconds, keep circulating, then come back and quietly ask, \"What is the hardest part of getting started?\"", lvl:3, v:"<strong>Strong.</strong> The wait avoids a public standoff, and the question is about the work rather than the attitude, which gives her a way back in without backing down."},
+  {t:"Respond immediately to the comment: \"We don't say things are stupid in here.\"", lvl:4, v:"<strong>Corrects the smaller problem and starts the bigger one.</strong> You are now negotiating about tone in front of an audience, and the writing still has not begun. The comment is a bid, not the issue."},
+  {t:"Leave her alone entirely and address it at the end of the period.", lvl:1, v:"<strong>Too little.</strong> Planned ignoring is a real strategy for attention seeking behavior, but here the student is not working, and a full period of that is a learning loss you cannot get back."}
+ ],
+ note:"Watch what happens if you approach without an audience. Many refusals dissolve the moment there is no one to perform for."
+},
+{
+ tag:"Transitions", title:"The line cut",
+ vignette:"Lining up for lunch, Sam slides in front of two classmates. One protests loudly, \"He cut!\" The rest of the line turns to watch.",
+ opts:[
+  {t:"Catch Sam's eye, point to the back of the pair, and wait without speaking.", lvl:1, v:"<strong>Clean.</strong> It resolves the fairness issue immediately, gives the protesting student the outcome they wanted, and keeps a small correction small. Say nothing until he moves."},
+  {t:"\"Sam, you cut in front of Talia and Reid. Go behind them.\"", lvl:4, v:"<strong>Fine, though louder than needed.</strong> Naming the offense in front of an audience makes it a story. The nonverbal version accomplishes the same thing and gives Sam a way to comply without a scene."},
+  {t:"Send Sam to the end of the line.", lvl:5, v:"<strong>A consequence, not a correction.</strong> Going to the very end punishes more than the behavior warrants, and it teaches the class that you escalate quickly on public behavior."}
+ ],
+ note:"Public behaviors tempt public corrections, because you feel the audience waiting for one. The audience is exactly why the smaller move is worth protecting."
+},
+{
+ tag:"Peer conflict", title:"The tattle",
+ vignette:"Mid-lesson, Grace comes to you to report that Owen was tipping his water bottle back and forth and might spill it. Owen is quietly doing his work.",
+ opts:[
+  {t:"\"Thanks for looking out. Is anyone hurt or unsafe? Then I've got it. Back to your seat.\"", lvl:3, v:"<strong>Best fit.</strong> It gives her a durable rule for the next time, does not shame her for reporting, and does not put Owen on trial for nothing. Teaching the difference between reporting and tattling is the actual lesson."},
+  {t:"Nod, say \"okay,\" and keep teaching.", lvl:1, v:"<strong>Minimal but incomplete.</strong> It ends this instance and teaches nothing, so she comes back in four minutes. Occasionally the right choice when you are mid sentence, but not a plan."},
+  {t:"Ask Owen to put the water bottle away.", lvl:4, v:"<strong>Rewards the tattling and corrects the wrong student.</strong> Owen learns that reporting works on him, and Grace learns that it works, so it will happen again."}
+ ],
+ note:"Frequent tattling is often connection seeking. The student wants a moment with you, and the report is the ticket. Building in a scheduled moment can drop the rate faster than any correction."
+},
+{
+ tag:"Technology", title:"Tab switching",
+ vignette:"During Chromebook work time, you notice Jordan switch tabs quickly as you walk past. It happens twice. The assigned activity is open, but barely started.",
+ opts:[
+  {t:"Stand behind his shoulder and stay there for a moment while you scan the room.", lvl:2, v:"<strong>Efficient.</strong> He returns to the task, you have not accused anyone of anything, and you have gathered information about whether he can do the work. Proximity is the natural fit for screen behavior."},
+  {t:"Quietly ask him to show you what he has done so far.", lvl:3, v:"<strong>Also good, and better if he is stuck.</strong> It shifts the conversation to the work and lets you find out whether the tab switching is avoidance rather than entertainment."},
+  {t:"Close the Chromebook and tell him he has lost device time for the day.", lvl:5, v:"<strong>A large consequence for two glances.</strong> He also now cannot do the assignment. Removal of access can be reasonable for a repeated, documented pattern, but not as an opening move."}
+ ],
+ note:"Ask what the tabs were. Off-task screen behavior tells you something different if it is a game than if it is a translation tool or a different chapter of the same reading."
+},
+{
+ tag:"Peer conflict", title:"The eye roll",
+ vignette:"You ask Maya to move her materials so her group can share the table. She does it, but rolls her eyes and mutters something as she turns away. Two students at the table look up at you.",
+ opts:[
+  {t:"Let it go in the moment, and check in with her privately when the group starts working.", lvl:1, v:"<strong>Usually the right call.</strong> She complied. Correcting the eye roll now trades compliance for a confrontation in front of an audience, and it makes her attitude the class's business."},
+  {t:"\"Maya, do you have something you want to say to me?\"", lvl:4, v:"<strong>An invitation to escalate.</strong> The question has no good answer, and she now has to save face in front of peers. Almost every version of this goes worse than doing nothing."},
+  {t:"Thank her for moving, sincerely, and keep going.", lvl:1, v:"<strong>Also strong.</strong> It names the compliance rather than the attitude, which is what you want repeated. If the muttering is a pattern, the private check-in in option A gives you a place to address it."}
+ ],
+ note:"Two options here sit on the same rung and are both defensible. The discussion worth having with students is which one fits the relationship they already have with the child."
+},
+{
+ tag:"Independent work", title:"\"I'm done!\"",
+ vignette:"Two minutes into independent practice, Theo announces \"I'm DONE!\" from across the room. He has answered three of twelve problems.",
+ opts:[
+  {t:"Do not respond to the announcement. Circulate, arrive at his desk in your normal route, and quietly say, \"Show me number four.\"", lvl:1, v:"<strong>Best fit.</strong> The announcement gets nothing, the work gets attention, and the finished claim is checked without a public exchange. The delay is doing the work here."},
+  {t:"\"Great job, Theo!\" and keep circulating.", lvl:1, v:"<strong>Low intrusion, wrong reinforcement.</strong> He is not done, and calling out just earned praise. Expect this every work period from now on."},
+  {t:"\"Theo, we don't shout across the room. Raise your hand.\"", lvl:4, v:"<strong>Delivers exactly the attention he asked for.</strong> The rule is correct and the timing hands him the payoff. Teach the expectation later, at a neutral moment."}
+ ],
+ note:"For attention-maintained behavior, what you attend to matters more than what you say. The reprimand and the praise can reinforce the same thing."
+},
+{
+ tag:"Independent work", title:"The borrowed eraser",
+ vignette:"Lucia reaches across the table and takes an eraser from Ben's pencil box without asking. Ben frowns but says nothing.",
+ opts:[
+  {t:"Catch Lucia's eye and mouth, \"Ask him.\"", lvl:1, v:"<strong>Least intrusive and teaches the missing skill.</strong> It fixes it in two seconds, and Ben sees that you noticed, which matters as much as the correction does."},
+  {t:"Step over and quietly say, \"Ben, is that okay with you?\"", lvl:3, v:"<strong>Good, and it gives Ben a voice.</strong> Slightly more intrusive, and worth it if Ben tends to get run over by tablemates. Choose based on what Ben needs, not what Lucia did."},
+  {t:"Say nothing. It is an eraser.", lvl:1, v:"<strong>Defensible once, costly as a pattern.</strong> Ignoring low-level boundary crossing teaches the quiet student that speaking up is on them alone."}
+ ],
+ note:"Minor property behaviors are one of the easiest places to teach a specific replacement phrase. Correcting without giving the words to use is a missed opportunity."
+},
+{
+ tag:"Transitions", title:"Still packing",
+ vignette:"The class is lined up for music. Riley is still at his desk putting away supplies at half speed, and the line is starting to lose its shape while everyone waits.",
+ opts:[
+  {t:"Start the line moving with the paraprofessional or a line leader, and walk back to Riley yourself.", lvl:3, v:"<strong>Best fit if the structure allows it.</strong> Twenty students stop waiting on one, and Riley gets a private prompt instead of an audience. Solve the class problem and the student problem separately."},
+  {t:"\"Riley, we are all waiting on you.\"", lvl:4, v:"<strong>Common and worth examining.</strong> It uses peer pressure as the consequence, which sometimes speeds a student up and sometimes teaches the class who to be annoyed at. Slow packing is often a processing speed issue rather than a choice."},
+  {t:"Wait silently until he finishes.", lvl:1, v:"<strong>Lowest intrusion, highest cost.</strong> Nobody is corrected and the whole class loses the minutes. Least intrusive to the individual is not the same as least disruptive overall."}
+ ],
+ note:"If a student is consistently last at transitions, a two minute early warning is a support, not a special favor, and it removes the need for the correction entirely."
+}
+];
+
+let i = 0;
+const answered = new Array(CARDS.length).fill(false);
+
+const el = id => document.getElementById(id);
+
+function render(){
+  const c = CARDS[i];
+  el("tag").textContent = c.tag;
+  el("count").textContent = "Card " + (i+1) + " of " + CARDS.length;
+  el("title").textContent = c.title;
+  el("vignette").textContent = c.vignette;
+  el("note").innerHTML = "";
+
+  const box = el("options");
+  box.innerHTML = "";
+  c.opts.forEach((o, idx) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = '<span class="letter">' + "ABC"[idx] + '</span>' + o.t;
+    b.onclick = () => reveal(idx);
+    box.appendChild(b);
+  });
+  drawDots();
+  el("prev").disabled = i === 0;
+  el("next").textContent = i === CARDS.length - 1 ? "Back to card 1" : "Next card";
+}
+
+function reveal(picked){
+  const c = CARDS[i];
+  answered[i] = true;
+  [...el("options").children].forEach((b, idx) => {
+    const o = c.opts[idx];
+    const r = RUNGS[o.lvl];
+    b.disabled = true;
+    b.classList.add("revealed");
+    if (idx === picked) b.classList.add("picked");
+    b.style.setProperty("--rung", r.color);
+
+    const line = document.createElement("div");
+    line.className = "rungline";
+    let pips = "";
+    for (let p = 1; p <= 5; p++) pips += '<span class="pip' + (p <= o.lvl ? " on" : "") + '"></span>';
+    line.innerHTML = '<span class="pips">' + pips + '</span><span class="rungname">' + o.lvl + ". " + r.name + '</span>';
+    line.style.setProperty("--rung", r.color);
+    b.appendChild(line);
+
+    const v = document.createElement("p");
+    v.className = "verdict";
+    v.innerHTML = o.v;
+    b.appendChild(v);
+  });
+  el("note").innerHTML = '<div class="note"><b>Something to notice</b>' + c.note + '</div>';
+  drawDots();
+}
+
+function drawDots(){
+  const d = el("dots");
+  d.innerHTML = "";
+  CARDS.forEach((c, idx) => {
+    const b = document.createElement("button");
+    b.className = "dot" + (answered[idx] ? " done" : "") + (idx === i ? " here" : "");
+    b.setAttribute("aria-label", "Go to card " + (idx+1));
+    b.onclick = () => { i = idx; render(); };
+    d.appendChild(b);
+  });
+}
+
+el("next").onclick = () => { i = (i + 1) % CARDS.length; render(); window.scrollTo({top:0,behavior:"smooth"}); };
+el("prev").onclick = () => { if (i > 0) { i--; render(); window.scrollTo({top:0,behavior:"smooth"}); } };
+
+render();
+</script>
+</body>
+</html>
